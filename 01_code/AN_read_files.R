@@ -22,12 +22,12 @@ View(sec8a2)
 summary(sec8a2)
 
 # sec8a3
-sec8a3 <- read_dta("02_raw_data/sec8a3.dta")
+sec8a3 <- read_dta("sec8a3.dta")
 View(sec8a3)
 summary(sec8a3)
 
 # sec8b
-sec8b <- read_dta("02_raw_data/sec8b.dta")
+sec8b <- read_dta("sec8b.dta")
 View(sec8b)
 summary(sec8b)
 
@@ -77,4 +77,8 @@ com3 <- full_join(sec8c1, sec8c2, by = c("nh" = "nh", "clust" = "clust"))
 
 com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
 
+
 com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
+
+com4 <- full_join(com1, com2, by = c("nh" = "nh", "clust" = "clust"))
+
