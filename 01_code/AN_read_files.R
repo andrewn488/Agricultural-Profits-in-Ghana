@@ -74,4 +74,6 @@ summary(sec8hid)
 # start joining files
 com1 <- full_join(sec8a1, sec8a2, by = c("nh" = "nh", "clust" = "clust"))
 
+com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
+
 
