@@ -77,4 +77,8 @@ com3 <- full_join(sec8c1, sec8c2, by = c("nh" = "nh", "clust" = "clust"))
 
 com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
 
+
+com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
+
 com4 <- full_join(com1, com2, by = c("nh" = "nh", "clust" = "clust"))
+
