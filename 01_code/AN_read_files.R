@@ -8,19 +8,16 @@
 # load libraries
 library(tidyverse)
 library(haven)
+library(dplyr)
 
 # read all dta files:
-sec0a <- read_dta("02_raw_data/sec0a.dta")
-View(sec0a)
-summary(sec0a)
-
 # sec8a1
-sec8a1 <- read_dta("02_raw_data/sec8a1.dta")
+sec8a1 <- read_dta("sec8a1.dta")
 View(sec8a1)
 summary(sec8a1)
 
 # sec8a2
-sec8a2 <- read_dta("02_raw_data/sec8a2.dta")
+sec8a2 <- read_dta("sec8a2.dta")
 View(sec8a2)
 summary(sec8a2)
 
@@ -75,5 +72,6 @@ View(sec8hid)
 summary(sec8hid)
 
 # start joining files
+com1 <- full_join(sec8a1, sec8a2, by = c("nh" = "nh", "clust" = "clust"))
 
 
