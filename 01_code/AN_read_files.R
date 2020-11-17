@@ -32,12 +32,12 @@ View(sec8b)
 summary(sec8b)
 
 # sec8c1
-sec8c1 <- read_dta("02_raw_data/sec8c1.dta")
+sec8c1 <- read_dta("sec8c1.dta")
 View(sec8c1)
 summary(sec8c1)
 
 # sec8c2
-sec8c2 <- read_dta("02_raw_data/sec8c2.dta")
+sec8c2 <- read_dta("sec8c2.dta")
 View(sec8c2)
 summary(sec8c2)
 
@@ -73,5 +73,6 @@ summary(sec8hid)
 
 # start joining files
 com1 <- full_join(sec8a1, sec8a2, by = c("nh" = "nh", "clust" = "clust"))
+com3 <- full_join(sec8c1, sec8c2, by = c("nh" = "nh", "clust" = "clust"))
 
 
