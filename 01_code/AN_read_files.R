@@ -11,77 +11,38 @@ library(haven)
 library(dplyr)
 
 # read all dta files:
-# sec8a1
-sec8a1 <- read_dta("sec8a1.dta")
-View(sec8a1)
-summary(sec8a1)
+# extract all column names from each dta file to find keys
 
-# sec8a2
-sec8a2 <- read_dta("sec8a2.dta")
-View(sec8a2)
-summary(sec8a2)
+sec8a1 <- read_dta("02_raw_data/sec8a1.dta")
 
-# sec8a3
-sec8a3 <- read_dta("sec8a3.dta")
-View(sec8a3)
-summary(sec8a3)
+sec8c1 <- read_dta("02_raw_data/sec8c1.dta")
 
-# sec8b
-sec8b <- read_dta("sec8b.dta")
-View(sec8b)
-summary(sec8b)
+sec8c2 <- read_dta("02_raw_data/sec8c2.dta")
 
-# sec8c1
-sec8c1 <- read_dta("sec8c1.dta")
-View(sec8c1)
-summary(sec8c1)
-
-# sec8c2
-sec8c2 <- read_dta("sec8c2.dta")
-View(sec8c2)
-summary(sec8c2)
-
-# sec8d
-sec8d <- read_dta("02_raw_data/sec8d.dta")
-View(sec8d)
-summary(sec8d)
-
-# sec8e
-sec8e <- read_dta("02_raw_data/sec8e.dta")
-View(sec8e)
-summary(sec8e)
-
-# sec8f
-sec8f <- read_dta("02_raw_data/sec8f.dta")
-View(sec8f)
-summary(sec8f)
-
-# sec8g
-sec8g <- read_dta("02_raw_data/sec8g.dta")
-View(sec8g)
-summary(sec8g)
-
-# sec8h
-sec8h <- read_dta("02_raw_data/sec8h.dta")
-View(sec8h)
-summary(sec8h)
-
-# sec8hid
 sec8hid <- read_dta("02_raw_data/sec8hid.dta")
-View(sec8hid)
-summary(sec8hid)
 
-# start joining files
-com1 <- full_join(sec8a1, sec8a2, by = c("nh" = "nh", "clust" = "clust"))
-com3 <- full_join(sec8c1, sec8c2, by = c("nh" = "nh", "clust" = "clust"))
+# size of plots - main agg file to use
+# use dummy as '1' for owned / rendered
+# what is size and how is it measured
 
-com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
+# start selecting variables and rename
+sec8a1 <- read_dta("02_raw_data/sec8a1.dta") %>% 
+  select(nh, s8aq1, s8aq3, s8aq13, s8aq14, s8aq15, s8aq16, s8aq17, s8aq18, clust) %>% 
+  rename(current_land_owner = s8aq1, unit_plot_areas = s8aq3, land_rented_out = s8aq13, qty_land_rented = s8aq14, amnt_from_rented_land = s8aq15,
+         tot_land_s_crop = s8aq16, land_from_s_crop = s8aq17, amnt_from_s_crop = s8aq18)
 
-com4 <- full_join(com1, com2, by = c("nh" = "nh", "clust" = "clust"))
+sec8c1 <- read_dta("02_raw_data/sec8c1.dta") %>% 
+  select(nh, s8cq13, clust) %>% 
+  rename(tot_val_harvest = s8cq13)
 
-sec4b <- read_dta("sec4b.dta")
-com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
-com4 <- full_join(com1, com2, by = c("nh" = "nh", "clust" = "clust"))
+sec8hid <- read_dta("02_raw_data/sec8hid.dta") %>% 
+  select(nh, clust, hhid) %>% 
+  rename(household_id = hhid)
+
+# joins
+
+com1 <- left_join(sec8a1, sec8c1, by = c("nh" = "nh", "clust" = "clust"))
+com2 <- left_join(com1, sec8hid, by = c("nh" = "nh", "clust" = "clust"))
 
 
 # Arunima's Data Wrangling code
@@ -167,12 +128,4 @@ combined2 <- left_join(combined1, sec0A, by = c("nh" = "nh", "clust" = "clust"))
 combined3 <- left_join(combined2, nh_age, by = c("nh" = "nh"))
 # Combine education
 combined4 <- left_join(combined3, sec2A, by = c("nh" = "nh","clust" = "clust"))
-
-
-
-
-
-
-
-
 
