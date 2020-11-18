@@ -79,4 +79,11 @@ com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
 
 com4 <- full_join(com1, com2, by = c("nh" = "nh", "clust" = "clust"))
 
+<<<<<<< HEAD
 sec4b <- read_dta("sec4b.dta")
+=======
+com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
+
+com4 <- full_join(com1, com2, by = c("nh" = "nh", "clust" = "clust"))
+
+>>>>>>> bcac3023dcceea3e283b195ed41c34818f173c8f
