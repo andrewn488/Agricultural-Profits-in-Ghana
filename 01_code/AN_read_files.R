@@ -11,74 +11,38 @@ library(haven)
 library(dplyr)
 
 # read all dta files:
-# sec8a1
-sec8a1 <- read_dta("sec8a1.dta")
-View(sec8a1)
-summary(sec8a1)
-
-# sec8a2
-sec8a2 <- read_dta("sec8a2.dta")
-View(sec8a2)
-summary(sec8a2)
-
-# sec8a3
-sec8a3 <- read_dta("sec8a3.dta")
-View(sec8a3)
-summary(sec8a3)
-
-# sec8b
-sec8b <- read_dta("sec8b.dta")
-View(sec8b)
-summary(sec8b)
-
-# sec8c1
-sec8c1 <- read_dta("sec8c1.dta")
-View(sec8c1)
-summary(sec8c1)
-
-# sec8c2
-sec8c2 <- read_dta("sec8c2.dta")
-View(sec8c2)
-summary(sec8c2)
-
-# sec8d
+# extract all column names from each dta file to find keys
+sec8a1 <- read_dta("02_raw_data/sec8a1.dta")
+colnames(sec8a1)
+sec8a2 <- read_dta("02_raw_data/sec8a2.dta")
+colnames(sec8a2)
+sec8a3 <- read_dta("02_raw_data/sec8a3.dta")
+colnames(sec8a3)
+sec8b <- read_dta("02_raw_data/sec8b.dta")
+colnames(sec8b)
+sec8c1 <- read_dta("02_raw_data/sec8c1.dta")
+colnames(sec8c1)
+sec8c2 <- read_dta("02_raw_data/sec8c2.dta")
+colnames(sec8c2)
 sec8d <- read_dta("02_raw_data/sec8d.dta")
-View(sec8d)
-summary(sec8d)
-
-# sec8e
+colnames(sec8d)
 sec8e <- read_dta("02_raw_data/sec8e.dta")
-View(sec8e)
-summary(sec8e)
-
-# sec8f
+colnames(sec8e)
 sec8f <- read_dta("02_raw_data/sec8f.dta")
-View(sec8f)
-summary(sec8f)
-
-# sec8g
+colnames(sec8f)
 sec8g <- read_dta("02_raw_data/sec8g.dta")
-View(sec8g)
-summary(sec8g)
-
-# sec8h
+colnames(sec8g)
 sec8h <- read_dta("02_raw_data/sec8h.dta")
-View(sec8h)
-summary(sec8h)
-
-# sec8hid
+colnames(sec8h)
 sec8hid <- read_dta("02_raw_data/sec8hid.dta")
-View(sec8hid)
-summary(sec8hid)
+colnames(sec8hid)
 
 # start joining files
-com1 <- full_join(sec8a1, sec8a2, by = c("nh" = "nh", "clust" = "clust"))
-com3 <- full_join(sec8c1, sec8c2, by = c("nh" = "nh", "clust" = "clust"))
-
-com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
-
-
-com2 <- full_join(sec8a3, sec8b, by = c("nh" = "nh", "clust" = "clust"))
-
-com4 <- full_join(com1, com2, by = c("nh" = "nh", "clust" = "clust"))
-
+com1 <- left_join(sec8a1, sec8a2, by = c("nh" = "nh", "clust" = "clust"))
+com2 <- left_join(com1, sec8a3, by = c("nh" = "nh", "clust" = "clust"))
+com3 <- left_join(com2, sec8b, by = c("nh" = "nh", "clust" = "clust"))
+com4 <- left_join(com3, sec8c1, by = c("nh" = "nh", "clust" = "clust"))
+com5 <- left_join(com4, sec8c2, by = c("nh" = "nh", "clust" = "clust", "s8cq1" = "s8cq1"))
+com6 <- left_join(com5, sec8d, by = c("nh" = "nh", "clust" = "clust"))
+com7 <- left_join(com6, sec8e, by = c("nh" = "nh", "clust" = "clust"))
+com8 <- left_join(com7, sec8f, by = c("nh" = "nh", "clust" = "clust"))
