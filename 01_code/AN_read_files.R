@@ -47,6 +47,7 @@ com1 <- left_join(sec8a1, sec8c1, by = c("nh" = "nh", "clust" = "clust"))
 com2 <- left_join(com1, sec8hid, by = c("nh" = "nh", "clust" = "clust"))
 
 
+
 # Arunima's Data Wrangling code
 
 #-----------------------------------------------------------------------------------#
@@ -111,6 +112,7 @@ nh_age <- select(sec1, "nh", "agey", "clust") %>%
   na.omit() %>%
   group_by(nh) %>%
   summarise(av_yrs_age = round(mean(agey), 1))
+
 
 #-----------------------------------------------------------------------------------#
 # Combine data                                                                      #
@@ -316,6 +318,7 @@ cs4a_health_provider <-
   mutate(health_provider = ifelse(is.na(y), "2", "1")) %>%
   select(1:3, 6)
 
+
 #clean cs4b data to just identify if the community has hospital or not
 cs4b_hospital <-
   cs4b_limit %>%
@@ -414,3 +417,51 @@ summary(lm(agri1c ~ unit_plot_areas + land_own_by_HH + tot_val_harvest + profit_
            + av_yrs_age + avg_educ + highest_educ + road + public_transport + permanent_market 
            + primary_school+ health_provider + hospital + HH_sex, data = wrangled_data_final_c2))
 
+
+#clean cs4b data to just identify if the community has hospital or not
+cs4b_hospital <-
+  cs4b_limit %>%
+  pivot_longer(
+    cols = s4bq5,
+    names_to = "column",
+    values_to = "n",
+    values_drop_na = TRUE
+  ) %>%
+  unique() %>%
+  pivot_wider(
+    names_from = n,
+    values_from = column
+  ) %>%
+  rename(
+    n = "2",
+    y = "1"
+  ) %>%
+  mutate(hospital = ifelse(is.na(y), "2", "1")) %>%
+  select(1:3, 6)
+
+#combine cs2, cs4, cs4a, cs4b, and cs5b together
+cs_combine1 <- 
+  left_join(cs2_road, cs2_public_transport, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine2 <- 
+  left_join(cs_combine1, cs2_permanent_market, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine3 <- 
+  left_join(cs_combine2, cs2_periodic_market, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine4 <- 
+  left_join(cs_combine3, cs3_school, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine5 <- 
+  left_join(cs_combine4, cs4a_health_provider, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine <-
+  left_join(cs_combine5, cs4b_hospital, by = c("region"="region", "district"="district", "eanum"="eanum"))
+
+#mutate clust for community combine file
+cs_final <-
+  cs_combine %>%
+  mutate(clust = eanum+4000) %>%
+  mutate(cluster_n = paste(clust, eanum, sep = "_"))
+
+# combine Andrew and Arunima data
+wrangled_data_final <- left_join(com2, combined4, by = c("nh", "clust"))
+
+
+# combine all final datasets
+wrangled_data_final_2 <- left_join(wrangled_data_final, cs_final, by = c("clust"))
