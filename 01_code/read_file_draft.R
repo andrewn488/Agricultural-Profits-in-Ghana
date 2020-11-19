@@ -282,3 +282,4 @@ plot(fitted(regression_1),
      resid(regression_1),
      xlab = "Fitted", ylab = "Residuals",
      abline(h = 0, col = "blue"))
+
