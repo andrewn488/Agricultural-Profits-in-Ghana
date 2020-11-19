@@ -270,7 +270,6 @@ regression_1 <-(lm(agri1c ~ unit_plot_areas + land_own_by_HH + tot_val_harvest +
 
 summary(regression_1)
 
-
 cor(wrangle_data_final)
 
 ggplot(regression_1, aes(x=rstandard(regression_1))) +
