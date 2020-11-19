@@ -15,6 +15,8 @@ library(dplyr)
 
 sec8a1 <- read_dta("02_raw_data/sec8a1.dta")
 
+sec8b <- read_dta("02_raw_data/sec8b.dta")
+
 sec8c1 <- read_dta("02_raw_data/sec8c1.dta")
 
 sec8c2 <- read_dta("02_raw_data/sec8c2.dta")
@@ -27,8 +29,8 @@ sec8hid <- read_dta("02_raw_data/sec8hid.dta")
 
 # start selecting variables and rename
 sec8a1 <- read_dta("02_raw_data/sec8a1.dta") %>% 
-  select(nh, s8aq1, s8aq3, s8aq13, s8aq14, s8aq15, s8aq16, s8aq17, s8aq18, clust) %>% 
-  rename(current_land_owner = s8aq1, unit_plot_areas = s8aq3, land_rented_out = s8aq13, qty_land_rented = s8aq14, amnt_from_rented_land = s8aq15,
+  select(nh, s8aq1, s8aq3, s8aq4, s8aq13, s8aq14, s8aq15, s8aq16, s8aq17, s8aq18, clust) %>% 
+  rename(current_land_owner = s8aq1, unit_plot_areas = s8aq3, land_own_by_HH = s8aq4, land_rented_out = s8aq13, qty_land_rented = s8aq14, amnt_from_rented_land = s8aq15,
          tot_land_s_crop = s8aq16, land_from_s_crop = s8aq17, amnt_from_s_crop = s8aq18)
 
 sec8c1 <- read_dta("02_raw_data/sec8c1.dta") %>% 
@@ -43,7 +45,6 @@ sec8hid <- read_dta("02_raw_data/sec8hid.dta") %>%
 
 com1 <- left_join(sec8a1, sec8c1, by = c("nh" = "nh", "clust" = "clust"))
 com2 <- left_join(com1, sec8hid, by = c("nh" = "nh", "clust" = "clust"))
-
 
 
 
@@ -317,6 +318,7 @@ cs4a_health_provider <-
   mutate(health_provider = ifelse(is.na(y), "2", "1")) %>%
   select(1:3, 6)
 
+
 #clean cs4b data to just identify if the community has hospital or not
 cs4b_hospital <-
   cs4b_limit %>%
@@ -360,6 +362,106 @@ cs_final <-
 
 # combine Andrew and Arunima data
 wrangled_data_final <- left_join(com2, combined4, by = c("nh", "clust"))
+
+# combine all final datasets
+wrangled_data_final_2 <- left_join(wrangled_data_final, cs_final, by = c("clust"))
+
+#------------------------------------------------------------------------------------------------------------------------------
+#edition from Brian to clean data and adding couple variables
+#wrangled_data_final_c2 is the updated final dataframe
+
+#clean com data by sum tot_val_harvest using group by
+com_clean <-
+  com2 %>%
+  group_by(nh, current_land_owner, unit_plot_areas, land_own_by_HH, land_rented_out, qty_land_rented, amnt_from_rented_land, tot_land_s_crop, land_from_s_crop, amnt_from_s_crop, clust, household_id) %>%
+  summarise(tot_val_harvest = sum(tot_val_harvest))
+
+#load sec1 and limited to sex, rel, and agey
+sec1_v1 <- read_dta('02_raw_data/sec1.dta') %>% 
+  select(nh, sex, rel, agey, clust)
+
+#add another dataframe to understand sex of HH
+sec1_HH_sex <-
+  sec1_v1 %>%
+  filter(rel==1) %>%
+  select(nh, clust, sex)
+
+#clean sec2A data by calculated the educ as avg and find the top educ.
+sec2A_clean <-
+  sec2A %>%
+  na.omit() %>%
+  group_by(nh, clust) %>%
+  summarise(avg_educ = round(mean(highest_educ),1), highest_educ = max(highest_educ) )
+
+#new combined4 dataframe using previous edit data
+combined4_clean <- 
+  left_join(combined3, sec2A_clean, by = c("nh" = "nh","clust" = "clust")) %>%
+  left_join(., sec1_HH_sex, by = c("nh" = "nh","clust" = "clust")) %>%
+  rename(HH_sex = sex)
+
+# combine Andrew and Arunima data with Brian's edit
+wrangled_data_final_c1 <- left_join(com_clean, combined4_clean, by = c("nh", "clust"))
+
+# combine all final datasets with Brian's edit
+wrangled_data_final_c2 <- left_join(wrangled_data_final_c1, cs_final, by = c("clust"))
+
+#adding a new variable for profit per unit
+wrangled_data_final_c2 <-
+  wrangled_data_final_c2 %>%
+  mutate(profit_per_unit = agri1c/land_own_by_HH)
+
+colnames(wrangled_data_final_c2)
+
+#trying to see the correlation between profit and other variables
+summary(lm(agri1c ~ unit_plot_areas + land_own_by_HH + tot_val_harvest + profit_per_unit +totemp
+           + av_yrs_age + avg_educ + highest_educ + road + public_transport + permanent_market 
+           + primary_school+ health_provider + hospital + HH_sex, data = wrangled_data_final_c2))
+
+
+#clean cs4b data to just identify if the community has hospital or not
+cs4b_hospital <-
+  cs4b_limit %>%
+  pivot_longer(
+    cols = s4bq5,
+    names_to = "column",
+    values_to = "n",
+    values_drop_na = TRUE
+  ) %>%
+  unique() %>%
+  pivot_wider(
+    names_from = n,
+    values_from = column
+  ) %>%
+  rename(
+    n = "2",
+    y = "1"
+  ) %>%
+  mutate(hospital = ifelse(is.na(y), "2", "1")) %>%
+  select(1:3, 6)
+
+#combine cs2, cs4, cs4a, cs4b, and cs5b together
+cs_combine1 <- 
+  left_join(cs2_road, cs2_public_transport, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine2 <- 
+  left_join(cs_combine1, cs2_permanent_market, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine3 <- 
+  left_join(cs_combine2, cs2_periodic_market, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine4 <- 
+  left_join(cs_combine3, cs3_school, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine5 <- 
+  left_join(cs_combine4, cs4a_health_provider, by = c("region"="region", "district"="district", "eanum"="eanum"))
+cs_combine <-
+  left_join(cs_combine5, cs4b_hospital, by = c("region"="region", "district"="district", "eanum"="eanum"))
+
+#mutate clust for community combine file
+cs_final <-
+  cs_combine %>%
+  mutate(clust = eanum+4000) %>%
+  mutate(cluster_n = paste(clust, eanum, sep = "_"))
+
+# combine Andrew and Arunima data
+wrangled_data_final <- left_join(com2, combined4, by = c("nh", "clust"))
+
 
 # combine all final datasets
 wrangled_data_final_2 <- left_join(wrangled_data_final, cs_final, by = c("clust"))
