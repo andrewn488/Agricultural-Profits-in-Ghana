@@ -85,26 +85,16 @@ agg9 <- read_dta('02_raw_data/agg9.dta') %>%
 agg10 <- read_dta('02_raw_data/agg10.dta') %>%
   select(clust, nh, impfoodc)
 
+# Community variables
 cs2 <- 
   select(cs2, region:eanum, s2q4, s2q8, s2q19, s2q20, s2q23)
 
 cs3 <- 
   select(cs3, region:eanum, s3q1, s3q11)
 
-#cs4a - Is there a (health provider) in this community
-cs4a <- 
-  select(cs4a, region:eanum, s4aq1)
-
-#cs4b - Is there a (hospital, parmancy...etc) in this community?
 cs4b <- 
   select(cs4b, region:eanum, s4bq5)
 
-#cs4c has no important variables
-cs5a <- 
-  select(cs5a, region:eanum, s5aq1, s5aq2, s5aq4)
-
-cs5b <- 
-  select(cs5b, region:eanum, s5bq5, s5bq6, s5bq22a:s5bq22l, s5bq24:s5bq25b)
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Clean Data                                                                                                        #
@@ -130,7 +120,6 @@ sec8c1_tot_harvest <-
 #clean sec2a data by find the top educ.
 sec2a_high_educ <-
   sec2a %>%
-  na.omit() %>%
   group_by(nh, clust) %>%
   summarise(highest_educ = max(highest_educ) )
 
@@ -226,10 +215,13 @@ cs4b_hospital <-
 
 #wrangle sec data
 wrangle_data_sec <- 
-  full_join(sec0a, hh_sex, by = c("nh" = "nh", "clust" = "clust")) %>%
+  full_join(sec0a, hh_sex, by = c("nh" = "nh", "clust" = "clust")) %>% 
   full_join(., sec2a_high_educ, by = c("nh" = "nh", "clust" = "clust")) %>%
   full_join(., sec8a1, by = c("nh" = "nh", "clust" = "clust")) %>%
   full_join(., sec8c1_tot_harvest, by = c("nh" = "nh", "clust" = "clust"))
+
+wrangle_data_sec[is.na(wrangle_data_sec)] <- 0 # Sets all NA values within data frame to 0
+cor(wrangle_data_sec)  # Calculate correlation matrix
 
 #wrangle aggregate data
 wrangle_data_agg <-
@@ -239,11 +231,17 @@ wrangle_data_agg <-
   full_join(., agg10, by = c("nh" = "nh", "clust" = "clust")) %>%
   full_join(., agg12, by = c("nh" = "nh", "clust" = "clust"))
 
+cor(wrangle_data_agg) # Calculate correlation matrix
+
+
 #wrangle community data
 wrangle_data_cs <-
   full_join(cs2_road, cs2_permanent_market, by = c("region"="region", "district"="district", "eanum"="eanum")) %>%
   full_join(., cs3_school, by = c("region"="region", "district"="district", "eanum"="eanum")) %>%
   full_join(., cs4b_hospital, by = c("region"="region", "district"="district", "eanum"="eanum"))
+
+
+cor(wrangle_data_cs) # Calculate correlation matrix
 
 #combine all the data into a final wrangle dataframe
 wrangle_data_final <-
@@ -251,35 +249,78 @@ wrangle_data_final <-
   full_join(., wrangle_data_cs, by = c("region"="region", "district"="district", "eanum"="eanum")) %>%
   select(-region, -district, -eanum)
 
-#adding a new variable for profit per unit
-wrangle_data_final <-
-  wrangle_data_final %>%
-  mutate(profit_per_unit = agri1c/land_own_by_HH)
+wrangle_data_final[is.na(wrangle_data_final)] <- 0 # Sets all NA values within data frame to 0
+cor(wrangle_data_final) # Calculate correlation matrix
 
-#replace all the NA value to 0 
-#r-square went down if we replace all NA to 0, so suggesting not to replace it
-#wrangle_data_final[is.na(wrangle_data_final)] = 0
+#adding a new variable for profit per unit
+profit_per_unit <- ifelse(wrangle_data_final$land_own_by_HH, wrangle_data_final$agri1c/wrangle_data_final$land_own_by_HH, 0)
+wrangle_data_final$profit_per_unit <- profit_per_unit
+
+wrangle_data_final[is.na(wrangle_data_final)] <- 0 # Sets all NA values within data frame to 0
+cor(wrangle_data_final) # Calculate correlation matrix
+
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Analysis                                                                                                          #
 #-------------------------------------------------------------------------------------------------------------------#
 
-#trying to see the correlation between profit and other variables
-regression_1 <-(lm(agri1c ~ unit_plot_areas + land_own_by_HH + tot_val_harvest + profit_per_unit + hhagdepn + ez + loc2
-                   + road + hospital + hh_sex + hh_age, data = wrangle_data_final))
+# Base model
+regression_1 <-(lm(agri1c ~ nh + clust + ez + loc2 + hh_sex + hh_age + highest_educ + current_land_owner
+                   + unit_plot_areas + land_own_by_HH + tot_val_harvest + totemp + hhagdepn + expfoodc 
+                   + othexpc + impfoodc + expremit + road + permanent_market + primary_school + hospital
+                   + profit_per_unit, data = wrangle_data_final))
 
 summary(regression_1)
 
-cor(wrangle_data_final)
-
+# Histogram for standard distribution of residuals
 ggplot(regression_1, aes(x=rstandard(regression_1))) +
-  geom_histogram(binwidth = 1) +
+  geom_histogram(binwidth = .25) +
   labs(x = "Standardize Residuals", 
        y = "Residual Count",
        title = "Assumption Review")
 
-plot(fitted(regression_1),
-     resid(regression_1),
+# Plot graph to check for constant variance
+plot(fitted(regression_1), resid(regression_1),
      xlab = "Fitted", ylab = "Residuals",
      abline(h = 0, col = "blue"))
+
+
+# Interaction testing between ecological zone and locality as well as profit per unit and land owned by household
+regression_2 <-(lm(agri1c ~ nh + (ez*loc2) + unit_plot_areas + road + permanent_market + primary_school 
+                   + hospital + (profit_per_unit*land_own_by_HH), data = wrangle_data_final))
+
+summary(regression_2)
+
+# Histogram for standard distribution of residuals
+ggplot(regression_2, aes(x=rstandard(regression_2))) +
+  geom_histogram(binwidth = .25) +
+  labs(x = "Standardize Residuals", 
+       y = "Residual Count",
+       title = "Assumption Review")
+
+# Plot graph to check for constant variance
+plot(fitted(regression_2), resid(regression_2),
+     xlab = "Fitted", ylab = "Residuals",
+     abline(h = 0, col = "blue"))
+
+
+# Checking how HH highest education level affects agricultural profit
+regression_3 <-(lm(agri1c ~ nh + (ez*loc2) + unit_plot_areas + road + permanent_market + primary_school 
+                   + hospital + highest_educ + (profit_per_unit*land_own_by_HH), data = wrangle_data_final))
+
+summary(regression_3)
+
+# Histogram for standard distribution of residuals
+ggplot(regression_3, aes(x=rstandard(regression_3))) +
+  geom_histogram(binwidth = .25) +
+  labs(x = "Standardize Residuals", 
+       y = "Residual Count",
+       title = "Assumption Review")
+
+# Plot graph to check for constant variance
+plot(fitted(regression_3), resid(regression_3),
+     xlab = "Fitted", ylab = "Residuals",
+     abline(h = 0, col = "blue"))
+
+
 
