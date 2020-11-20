@@ -284,10 +284,9 @@ plot(fitted(regression_1), resid(regression_1),
      xlab = "Fitted", ylab = "Residuals",
      abline(h = 0, col = "blue"))
 
-
-# Interaction testing between ecological zone and locality as well as profit per unit and land owned by household
-regression_2 <-(lm(agri1c ~ nh + (ez*loc2) + unit_plot_areas + road + permanent_market + primary_school 
-                   + hospital + (profit_per_unit*land_own_by_HH), data = wrangle_data_final))
+# Checking how HH highest education level affects agricultural profit
+regression_2 <-(lm(agri1c ~ nh + ez + loc2 + unit_plot_areas + road + permanent_market + primary_school 
+                   + hospital + highest_educ + (profit_per_unit*land_own_by_HH), data = wrangle_data_final))
 
 summary(regression_2)
 
@@ -304,7 +303,7 @@ plot(fitted(regression_2), resid(regression_2),
      abline(h = 0, col = "blue"))
 
 
-# Checking how HH highest education level affects agricultural profit
+# Interaction testing between ecological zone and locality as well as profit per unit and land owned by household
 regression_3 <-(lm(agri1c ~ nh + (ez*loc2) + unit_plot_areas + road + permanent_market + primary_school 
                    + hospital + highest_educ + (profit_per_unit*land_own_by_HH), data = wrangle_data_final))
 
@@ -321,6 +320,4 @@ ggplot(regression_3, aes(x=rstandard(regression_3))) +
 plot(fitted(regression_3), resid(regression_3),
      xlab = "Fitted", ylab = "Residuals",
      abline(h = 0, col = "blue"))
-
-
 
