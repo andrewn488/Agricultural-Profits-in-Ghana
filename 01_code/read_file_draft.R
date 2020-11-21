@@ -51,7 +51,8 @@ cs4b <- read_dta("02_raw_data/cs4b.dta")
 
 # Survey Information
 sec0a <- read_dta('02_raw_data/sec0a.dta') %>% 
-  select(region, district, eanum, nh, clust, ez, loc2)
+  select(region, district, eanum, nh, clust, ez, loc2) 
+  
 
 # Household Roster
 sec1 <- read_dta('02_raw_data/sec1.dta') %>% 
@@ -99,10 +100,13 @@ cs4b <-
 #-------------------------------------------------------------------------------------------------------------------#
 # Clean Data                                                                                                        #
 #-------------------------------------------------------------------------------------------------------------------#
+# Set variable as factor
+#sec0a$ez <- as.factor(sec0a$ez)
 
 #set the unaccountable education to 01
 sec2a$highest_educ[sec2a$highest_educ == 17] <- 01
 sec2a$highest_educ[sec2a$highest_educ == 96] <- 01
+
 
 #get the sex and age of head of household
 hh_sex <-
@@ -250,14 +254,14 @@ wrangle_data_final <-
   select(-region, -district, -eanum)
 
 wrangle_data_final[is.na(wrangle_data_final)] <- 0 # Sets all NA values within data frame to 0
-cor(wrangle_data_final) # Calculate correlation matrix
 
 #adding a new variable for profit per unit
 profit_per_unit <- ifelse(wrangle_data_final$land_own_by_HH, wrangle_data_final$agri1c/wrangle_data_final$land_own_by_HH, 0)
 wrangle_data_final$profit_per_unit <- profit_per_unit
 
 wrangle_data_final[is.na(wrangle_data_final)] <- 0 # Sets all NA values within data frame to 0
-cor(wrangle_data_final) # Calculate correlation matrix
+round_cor <- cor(wrangle_data_final) # Calculate correlation matrix
+round_cor <- round(round_cor, 2)
 
 
 #-------------------------------------------------------------------------------------------------------------------#
@@ -273,34 +277,42 @@ regression_1 <-(lm(agri1c ~ nh + clust + ez + loc2 + hh_sex + hh_age + highest_e
 summary(regression_1)
 
 # Histogram for standard distribution of residuals
-ggplot(regression_1, aes(x=rstandard(regression_1))) +
+std_dist_1 <- ggplot(regression_1, aes(x=rstandard(regression_1))) +
   geom_histogram(binwidth = .25) +
   labs(x = "Standardize Residuals", 
        y = "Residual Count",
        title = "Assumption Review")
+
+std_dist_1
 
 # Plot graph to check for constant variance
 plot(fitted(regression_1), resid(regression_1),
      xlab = "Fitted", ylab = "Residuals",
      abline(h = 0, col = "blue"))
 
+
+
 # Checking how HH highest education level affects agricultural profit
-regression_2 <-(lm(agri1c ~ nh + ez + loc2 + unit_plot_areas + road + permanent_market + primary_school 
+regression_2 <-(lm(agri1c ~ nh + factor(ez) + loc2 + unit_plot_areas + road + permanent_market + primary_school 
                    + hospital + highest_educ + (profit_per_unit*land_own_by_HH), data = wrangle_data_final))
 
 summary(regression_2)
 
 # Histogram for standard distribution of residuals
-ggplot(regression_2, aes(x=rstandard(regression_2))) +
+std_dist_2 <- ggplot(regression_2, aes(x=rstandard(regression_2))) +
   geom_histogram(binwidth = .25) +
   labs(x = "Standardize Residuals", 
        y = "Residual Count",
        title = "Assumption Review")
 
+std_dist_2
+
 # Plot graph to check for constant variance
-plot(fitted(regression_2), resid(regression_2),
+const_var_2 <- plot(fitted(regression_2), resid(regression_2),
      xlab = "Fitted", ylab = "Residuals",
      abline(h = 0, col = "blue"))
+
+const_var_2
 
 
 # Interaction testing between ecological zone and locality as well as profit per unit and land owned by household
@@ -310,14 +322,18 @@ regression_3 <-(lm(agri1c ~ nh + (ez*loc2) + unit_plot_areas + road + permanent_
 summary(regression_3)
 
 # Histogram for standard distribution of residuals
-ggplot(regression_3, aes(x=rstandard(regression_3))) +
+std_dist_3 <- ggplot(regression_3, aes(x=rstandard(regression_3))) +
   geom_histogram(binwidth = .25) +
   labs(x = "Standardize Residuals", 
        y = "Residual Count",
        title = "Assumption Review")
 
+std_dist_3
+
 # Plot graph to check for constant variance
-plot(fitted(regression_3), resid(regression_3),
+const_var_3 <- plot(fitted(regression_3), resid(regression_3),
      xlab = "Fitted", ylab = "Residuals",
      abline(h = 0, col = "blue"))
+
+const_var_3
 
