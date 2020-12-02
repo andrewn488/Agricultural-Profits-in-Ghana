@@ -1,0 +1,129 @@
+---
+title: "Statistical Analysis"
+author: "Arunima Roy, Andrew Nalundasan, Jianan Hsu"
+date: "12/1/2020"
+output: pdf_document
+---
+
+```{r, include=FALSE}
+# Sourcing the code
+source('01_code/read_file_draft.R')
+
+library(stargazer)
+```
+
+## Statistical Analysis 
+This section will focus on the analysis of the models the team ran as well as our findings. During our study, we focused on how agricultural profit in Ghana is affected by variables collected during the GLSS 4 survey.  
+
+
+#### Correlation Matrix
+The variables with the highest correlation was between loc2 (urban&local) and the Permanent Market variable with a coefficient of .87. 
+
+The second highest correlation was between clust and ecological zone with a coefficient of .86. 
+
+```{r, echo = FALSE}
+round_cor
+```
+
+
+#### Results for each model:
+
+##### Regression 1:
+
+```{r, echo = FALSE}
+stargazer(regression_1, type = "text")
+```
+
+We referred to ‘regression_1’ as our ‘Base Model’. Our aim for this model was to cast the net wide to find variables with statistical significance based on our initial assumptions. Multiple steps were taken to check the validity of our base model using the Residual Standard Error, Multiple R-Squared, and our p-value. We ensured that our correlation matrix had no NA’s included. Through this base model, we found eight variables with statistical significance. These variables were:
+
+Dependent variable:
+
+agric1c (HH agro income(1)-corrected): We used ‘agric1c’ as our dependent variable since this is what represents profit to us. We measured against the other explanatory variables to see the effect, if any, they had on profit.
+
+Explanatory variables with statistical significance:
+
+land_own_by_HH (Land owned by HH): This was included because we needed to know if a particular household owning land or not would affect profits of agricultural land. Owning land must be true in order to grow crops and make profits. ‘land_own_by_HH’ was found to be statistically significant at the 1% level of significance with a p-value of 2.09e-4
+
+totemp (Income from employment): We were interested to see how income from other employment would affect profits of agricultural land. We assumed that if one who profits from agricultural land must tend to the land, meaning this would be their main job. We were interested to see if other forms of employment would affect profits from agricultural land. ‘totemp’ was found to be statistically significant at the 5% level of significance with a p-value of 1.35e-3
+
+hhagdepn (Depreciation of farm equipment): Quality gear is paramount for any profession. In order to be successful, you must be able to depend on the tools that you help you accomplish your objective. A higher rate of depreciation of farm equipment would indicate higher expenditures on farm equipment for replacements, maintenance, or upgrades. We included this variable to see if investing more money in higher quality farm equipment would affect profitability form the agricultural land. ‘hhagdepn’ was found to be statistically significant at the 1% level of significance with a p-value of 6.12e-15
+
+expfoodc (Expenditure on food by households): There is a decent effect on profit from the amount of money spent on food for the household.  ‘expfoodc’ was found to be statistically significant at the 10% level of significance with a p-value of 0.012
+
+profit_per_unit (Land owned by HH): We mutated this variable to add to our dataset. This variable takes our dependent profit variable (‘agric1c’) and divides it by the ‘land_own_by_HH’ variable in order to calculate a rate of profit based on the ‘unit_plot_areas’. ‘profit_per_unit’ was found to be statistically significant at the 1% level of significance with a p-value of < 2e-16.
+
+Model validation:
+
+Regression 1 Histogram:
+
+```{r, echo = FALSE}
+std_dist_1
+```
+
+Our histogram is normally distributed with a residual count above 2500. This histogram test is used to check for model validity. When a histogram shows normally distributed errors, this means that this model is a good model to use for regression testing. 
+
+
+Regression 1 Fitted:
+
+```{r, echo=FALSE}
+plot(fitted(regression_1), resid(regression_1),
+     xlab = "Fitted", ylab = "Residuals",
+     abline(h = 0, col = "blue"))
+```
+
+We checked for constant variance using the Fitted vs. Residual plot. As we can see, there is a concentration of data points within a set range. This tells us that there is constant variance in this model with most of our data points concentrated in this general area with the exception of a few outliers. 
+
+
+##### Regression 2:
+
+```{r, echo = FALSE}
+stargazer(regression_2, type = "text")
+```
+
+
+Our intent for ‘regression_2’ was to check how the highest education level of a household effects agricultural profit. Through this model, we found six variables with statistical significance. These variables were:
+
+Dependent variable:
+
+agric1c (HH agro income(1)-corrected): same as ‘regression_1’.
+
+Explanatory variables with statistical significance:
+
+ez (Ecological Zone of household): We were especially interested in the effect of characteristics of local areas had on profit. Ecological Zones were broken up into three distinct factors: Coastal, Forest, and Savannah. ‘ez’ was found to be statistically significant at the 1% level of significance with a p-value of 4.12e-06
+
+unit_plot_areas (Unit of plot areas): We included this variable because we needed to factor in the size of the plots of land that we were working with so that we could see what the rate of profit was per unit of plot area. ‘unit_plot_areas’ was found to be statistically significant at the 1% level of significance with a p-value of < 2e-16
+
+road (road): We discovered that areas with roads that connect the community had a positive effect on profit of agricultural land. This makes sense since transportation of goods is essential to meet the demands of the community.  ‘road’ was found to be statistically significant at the 1% level of significance with a p-value of 3.94e-05
+
+permanent_market (Permanent market): We wanted to see how significant the presence of a permanent market would have on profit of agricultural land. Our assumption was that this would be strongly significant. ‘permanent_market’ was found to be statistically significant at the 10% level of significance with a p-value of 0.0336
+
+highest_educ (Highest level of education in household): We were especially interested in what effect household educational attainment had on profit of agricultural land. Our assumption was that higher education attainment would lead to higher profits but were surprised to see that the relationship shows a negative trend. Now our assumption is that highly educated individuals don’t go into farming for their main source of income. ‘highest_educ’ was found to be statistically significant at the 10% level of significance with a p-value of 0.0185
+
+profit_per_unit:land_own_by_HH (profit_per_unit * land_own_by_HH): We created an interaction between ‘profit_per_unit’ and ‘land_own_by_HH’. This interaction tells us the effect of profit per unit varying by if land is owned by a household. This interaction was found to be statistically significant at the 1% level of significance with a p-value of < 2e-16.
+
+Model validation:
+
+Regression 2 Histogram:
+
+```{r, echo=FALSE}
+std_dist_2
+```
+
+Our histogram  for regression 2 is also normally distributed. This histogram test is used to check for model validity. When a histogram shows normally distributed errors, this means that this model is a good model to use for regression testing. 
+
+Regression 2 Fitted:
+
+```{r, echo=FALSE}
+plot(fitted(regression_2), resid(regression_2),
+     xlab = "Fitted", ylab = "Residuals",
+     abline(h = 0, col = "blue"))
+```
+
+Similar to the histogram from regression 1, our fitted graph appears shows a concentration of data points within a set range. This tells us that there is constant variance in this model with most of our data points concentrated in this general area with the exception of a few outliers.
+
+
+##### Regression 3:
+
+```{r, echo = FALSE}
+stargazer(regression_3, type = "text")
+```
