@@ -257,8 +257,8 @@ profit_per_unit <- ifelse(wrangle_data_final$land_own_by_HH, wrangle_data_final$
 wrangle_data_final$profit_per_unit <- profit_per_unit
 
 wrangle_data_final[is.na(wrangle_data_final)] <- 0 # Sets all NA values within data frame to 0
-cor(wrangle_data_final) # Calculate correlation matrix
-
+cor_wrangle_data_final <- cor(wrangle_data_final) # Calculate correlation matrix
+round(cor_wrangle_data_final, 2) # round correlation matrix to 2 decimal points
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Analysis                                                                                                          #
