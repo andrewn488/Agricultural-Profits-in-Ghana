@@ -14,7 +14,7 @@ Purpose of project
 Main outcomes/ results
 
 ```{r cars}
-summary(cars)
+
 ```
 
 
@@ -24,3 +24,32 @@ print("hello")
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Variables:
+Here are the key variables that we used in our regression analysis that are having high statistically significant level with household agricultural income.
+agri1c(Household agricultural income): This dependent variable was chosen to measure against the other explanatory variables to see the effect of agricultural profit. 
+ez(Ecological zone number): Ecological zone is one of the main factor that we used in this analysis. We'd like to know how the ecological zone would impact agricultural income. Ecological zone was statistically significant at the 0.1% level
+loc2(Locality classification): Locality identify urban vs rural which is also another factor that we used with ecological zone to know how it would impact agricultural income. Locality wasn't statistically significant on itself, but it was statistically significant at the 0.1% level with ecological zone.
+highest_educ(Highest education in the household): Highest education is an important variable because when the household has a member with higher education is having less profit than lower education. Highest education was statistically significant at the 5% level.
+unit_plot_areas(area unit): Area unit is another main factor that we used in this analysis. The size of the plot could have different effect on the income. Area unit was statistically significant at the 0.1% level.
+land_own_by_HH(Land owned by household): Land owned by household is an important variable because this is the numerator that we used to calculated profit per unit.
+Road, permanent_market, primary_school, hospital: All of these dummy variables are important in the model because we get to understand how the economy and infrastructure impact agricultural income for each household.
+
+Other Variables:
+Here are the other variables that we have included in our dataframe, however, these variables are having low statistically significant level with household agricultural income.
+nh(Household ID): Household ID is one of our primary key to join data from different surveys. 
+clust(Enumeration area number): Enumeration area number is another primary key to join data from different surveys.
+hh_sex(Gender of head of household): A dummy variable to know what's the gender of head of household.
+hh_age(Age of head of household): This variable shows the age of head of household.
+current_land_owner(Household own any land currently): A dummy variable to identify if the household is owning any lands currently.
+tot_val_harvest(Total value of all harvest): This variable shows the value of harvest from each household.
+totemp(Income from employment): How much did each household get from employment.
+hhagdepn(Depreciation of farm equipment): Value of depreciation of farm equipment from each household.
+expfoodc(Food expenditure): How much did each household actual spend on food.
+othexpc(Other expenditure): How much did each household actual spend on other products.
+impfoodc(Imputed food expenditure): How much did each household imputed spend on food.
+expremit(Expenditure on remittances): How much did each household spend on remittances.
+
+  
+Correlation Matrix:
+There's no strong coefficients for correlation between most variables. However, we do see stronger correlations with those dummy variables like road, permanent market, primary school, and hospital with locality. Urban area has better economy and infrastructure than rural area.

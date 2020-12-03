@@ -95,7 +95,8 @@ sec2a_high_educ <-
   group_by(nh, clust) %>%
   summarise(highest_educ = max(highest_educ))
 
-#clean sec8a
+
+#clean sec8a and create a new variable for area unit as square feet
 sec8a1_farm_land_size <- 
   sec8a1 %>%
   filter(unit_plot_areas != 4) %>%
@@ -219,18 +220,24 @@ profit_per_unit <- ifelse(wrangle_data_final$farm_land_size, wrangle_data_final$
 wrangle_data_final$profit_per_unit <- profit_per_unit
 
 wrangle_data_final[is.na(wrangle_data_final)] <- 0 # Sets all NA values within data frame to 0
-<<<<<<< HEAD:01_code/read_file_draft.R
-cor_wrangle_data_final <- cor(wrangle_data_final) # Calculate correlation matrix
-round(cor_wrangle_data_final, 2) # round correlation matrix to 2 decimal points
-=======
+
+round_cor <- cor(wrangle_data_final) # Calculate correlation matrix
+round_cor <- round(round_cor, 2)
+
+#create a new dataframe to get log of profit for all positive profit HH record.
+wrangle_data_final_has_profit <-
+  wrangle_data_final %>%
+  filter(agri1c>0) %>%
+  mutate(
+    log_agri1c = log(agri1c)
+  )
+
 round_cor <- cor(wrangle_data_final) # Calculate correlation matrix
 round_cor <- round(round_cor, 2)
 
 #create log of farm_land_size
 wrangle_data_final$lagri_profit <- filter(wrangle_data_final$agri1c != 0) %>% 
   log(wrangle_data_final$agri1c)
-  
->>>>>>> bef2c89a6919e38092f808bb471916d3b2f9069f:01_code/final_code.R
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Analysis                                                                                                          #
@@ -277,8 +284,9 @@ std_dist_2
 
 # Plot graph to check for constant variance
 const_var_2 <- plot(fitted(regression_2), resid(regression_2),
-     xlab = "Fitted", ylab = "Residuals",
-     abline(h = 0, col = "blue"))
+                    xlab = "Fitted", ylab = "Residuals",
+                    abline(h = 0, col = "blue"))
+
 
 const_var_2
 
@@ -300,8 +308,31 @@ std_dist_3
 
 # Plot graph to check for constant variance
 const_var_3 <- plot(fitted(regression_3), resid(regression_3),
-     xlab = "Fitted", ylab = "Residuals",
-     abline(h = 0, col = "blue"))
+                    xlab = "Fitted", ylab = "Residuals",
+                    abline(h = 0, col = "blue"))
 
 const_var_3
 
+
+regression_4 <-(lm(log_agri1c ~ ez + loc2 + highest_educ
+                   + totemp + hhagdepn + expfoodc + farm_land_size 
+                   + othexpc + road + primary_school + hospital
+                   , data = wrangle_data_final_has_profit))
+
+summary(regression_4)
+
+# Histogram for standard distribution of residuals
+std_dist_4 <- ggplot(regression_4, aes(x=rstandard(regression_4))) +
+  geom_histogram(binwidth = .25) +
+  labs(x = "Standardize Residuals", 
+       y = "Residual Count",
+       title = "Assumption Review")
+
+std_dist_4
+
+# Plot graph to check for constant variance
+plot(fitted(regression_4), resid(regression_4),
+     xlab = "Fitted", ylab = "Residuals",
+     abline(h = 0, col = "blue"))
+
+const_var_4
