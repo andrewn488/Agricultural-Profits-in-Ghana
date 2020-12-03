@@ -2,25 +2,62 @@
 title: "Memo"
 author: "Arunima Roy, Andrew Nalundasan, Jianan Hsu"
 date: "11/20/2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+```{r, include=FALSE}
+# Sets the working directory
+setwd("~/Documents/School/Grad School/5112 Stats for Business Analytics/data_translation_20201116")
+
+# Sourcing the code
+source('01_code/read_file_draft.R')
+
+library(stargazer)
+library(tinytex)
 ```
 
-INSERT HERE:
-Purpose of project 
-Main outcomes/ results
+#### Background:
 
-```{r cars}
-summary(cars)
+The goal for this case study was to investigate how agricultural profits are determined in Ghana. Our first task was to find out how household educational attainment and certain characteristics of the local area has on agricultural profit. We have acquired those results and wanted to take it a step further by studying which ecological zone also yields the best profits. While looking at both of these scenarios, we dove in to understand how profit per area unit is affected.   
+
+To clearly state everything, we have two questions that we are trying to answer in this case study:
+
+1)	What is the effect of a household’s educational attainment on agricultural profit? 
+
+2)	Which ecological zone promotes the highest agricultural profit?
+
+#### Results: 
+The results to the questions stated in this case study and its interpretations are represented below: 
+
+1) Having some level of education attainment within a household unfortunately decreases agricultural profit by 17,390 cedi. 
+
+2) When observing the ecological zones on its own in the model, proves to be a statistically significant variable at the 1% statistical level. 
+
+When running the model to view the each of these zones individually, we get that the coastal zone yields 6.393e+05 more profit than the other zones, coming out to be the least profit yielded. The forest zone decreases profits by 8.160e+05 more compared to the coastal zone. The savannah zone decreases profits by 9.785e+05 more compared to the coastal zone.
+
+The graph below shows most profitable ecological zones. 
+
+Figure 1:
+
+```{r, echo = FALSE}
+library(ggplot2)
+wrangle_data_final %>% 
+  group_by(ez) %>% 
+  ggplot(aes( x = ez)) + 
+    geom_col(aes(y = agri1c))
+
 ```
 
 
+#### Recommendations:
+My recommendations to you would be the following:
 
-```{r pressure, echo=FALSE}
-print("hello")
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+1) With regards to educational attainment and profits, I would advise to target sales efforts towards a community that has a primary education facility/school.
+
+
+2) My second recommendation would be a more of a criteria when locating the right place to target agricultural profits. I would suggest finding an area that is as close to a forest-like ecological zone, along with finding a community that has a primary education school.
+
