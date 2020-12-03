@@ -95,6 +95,7 @@ sec2a_high_educ <-
   group_by(nh, clust) %>%
   summarise(highest_educ = max(highest_educ))
 
+
 #clean sec8a and create a new variable for area unit as square feet
 sec8a1_farm_land_size <- 
   sec8a1 %>%
@@ -219,6 +220,7 @@ profit_per_unit <- ifelse(wrangle_data_final$farm_land_size, wrangle_data_final$
 wrangle_data_final$profit_per_unit <- profit_per_unit
 
 wrangle_data_final[is.na(wrangle_data_final)] <- 0 # Sets all NA values within data frame to 0
+
 round_cor <- cor(wrangle_data_final) # Calculate correlation matrix
 round_cor <- round(round_cor, 2)
 
@@ -229,6 +231,13 @@ wrangle_data_final_has_profit <-
   mutate(
     log_agri1c = log(agri1c)
   )
+
+round_cor <- cor(wrangle_data_final) # Calculate correlation matrix
+round_cor <- round(round_cor, 2)
+
+#create log of farm_land_size
+wrangle_data_final$lagri_profit <- filter(wrangle_data_final$agri1c != 0) %>% 
+  log(wrangle_data_final$agri1c)
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Analysis                                                                                                          #
@@ -278,6 +287,7 @@ const_var_2 <- plot(fitted(regression_2), resid(regression_2),
                     xlab = "Fitted", ylab = "Residuals",
                     abline(h = 0, col = "blue"))
 
+
 const_var_2
 
 
@@ -324,3 +334,5 @@ std_dist_4
 plot(fitted(regression_4), resid(regression_4),
      xlab = "Fitted", ylab = "Residuals",
      abline(h = 0, col = "blue"))
+
+const_var_4

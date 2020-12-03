@@ -14,7 +14,7 @@ Purpose of project
 Main outcomes/ results
 
 ```{r cars}
-source('~/Documents/OMSBA/OMSBA_5112/data_translation_20201116/01_code/read_file_draft.R', echo=TRUE) #encountered the same issue that Arunima had last time.
+
 ```
 
 
@@ -53,5 +53,3 @@ expremit(Expenditure on remittances): How much did each household spend on remit
   
 Correlation Matrix:
 There's no strong coefficients for correlation between most variables. However, we do see stronger correlations with those dummy variables like road, permanent market, primary school, and hospital with locality. Urban area has better economy and infrastructure than rural area.
-
-
