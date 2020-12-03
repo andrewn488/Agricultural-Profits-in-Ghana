@@ -10,6 +10,8 @@
 library(tidyverse)
 library(haven)
 library(dplyr)
+library(corrplot)
+library(Hmisc)
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Read in data files                                                                                                #
@@ -227,23 +229,28 @@ round_cor <- round(round_cor, 2)
 #create a new dataframe to get log of profit for all positive profit HH record.
 wrangle_data_final_has_profit <-
   wrangle_data_final %>%
-  filter(agri1c>0) %>%
+  filter(profit_per_unit>0) %>%
   mutate(
-    log_agri1c = log(agri1c)
+    log_profit_per_unit = log(profit_per_unit)
   )
 
 round_cor <- cor(wrangle_data_final) # Calculate correlation matrix
 round_cor <- round(round_cor, 2)
 
-#create log of farm_land_size
-wrangle_data_final$lagri_profit <- filter(wrangle_data_final$agri1c != 0) %>% 
-  log(wrangle_data_final$agri1c)
+#remove factor and drop all observation contains NA to create correlation matrix
+wrangle_data_final_has_profit.cor <- 
+  wrangle_data_final_has_profit %>%
+  select(-ez) %>%
+  drop_na() 
+#change df to correlation table and create correlation plot
+wrangle_data_final_has_profit.cor <- cor(wrangle_data_final_has_profit.cor)
+corrplot(wrangle_data_final_has_profit.cor, cl.lim=c(min(wrangle_data_final_has_profit.cor),max(wrangle_data_final_has_profit.cor)))
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Analysis                                                                                                          #
 #-------------------------------------------------------------------------------------------------------------------#
 
-# Base model
+# Base model using all variables 
 regression_1 <-(lm(profit_per_unit ~ ez + loc2 + highest_educ
                    + totemp + hhagdepn + expfoodc + farm_land_size 
                    + othexpc + road + primary_school + hospital
@@ -267,9 +274,9 @@ plot(fitted(regression_1), resid(regression_1),
 
 
 
-# Checking how HH highest education level affects agricultural profit
-regression_2 <-(lm(profit_per_unit ~ highest_educ + road + primary_school 
-                   + hospital + farm_land_size, data = wrangle_data_final))
+# normalizes profit per unit
+regression_2 <-(lm(log_profit_per_unit ~ highest_educ + road + primary_school 
+                   + hospital + farm_land_size, data = wrangle_data_final_has_profit))
 
 summary(regression_2)
 
@@ -291,9 +298,9 @@ const_var_2 <- plot(fitted(regression_2), resid(regression_2),
 const_var_2
 
 
-# Interaction testing between ecological zone and locality as well as profit per unit and land owned by household
-regression_3 <-(lm(profit_per_unit ~ ez + road + primary_school 
-                   + hospital + farm_land_size, data = wrangle_data_final))
+# effect of locality and ecological zone on profit per unit
+regression_3 <-(lm(log_profit_per_unit ~ loc2 + ez + road + primary_school 
+                   + hospital + farm_land_size, data = wrangle_data_final_has_profit))
 
 summary(regression_3)
 
@@ -313,11 +320,9 @@ const_var_3 <- plot(fitted(regression_3), resid(regression_3),
 
 const_var_3
 
-
-regression_4 <-(lm(log_agri1c ~ ez + loc2 + highest_educ
-                   + totemp + hhagdepn + expfoodc + farm_land_size 
-                   + othexpc + road + primary_school + hospital
-                   , data = wrangle_data_final_has_profit))
+# investigate effect of hhagdepn
+regression_4 <-(lm(log_profit_per_unit ~ loc2 + ez + hhagdepn + road + primary_school 
+                   + hospital + farm_land_size, data = wrangle_data_final_has_profit))
 
 summary(regression_4)
 
@@ -331,8 +336,9 @@ std_dist_4 <- ggplot(regression_4, aes(x=rstandard(regression_4))) +
 std_dist_4
 
 # Plot graph to check for constant variance
-plot(fitted(regression_4), resid(regression_4),
-     xlab = "Fitted", ylab = "Residuals",
-     abline(h = 0, col = "blue"))
+const_var_4 <- plot(fitted(regression_4), resid(regression_4),
+                    xlab = "Fitted", ylab = "Residuals",
+                    abline(h = 0, col = "blue"))
 
 const_var_4
+
