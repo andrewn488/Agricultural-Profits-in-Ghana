@@ -3,17 +3,15 @@ title: "Memo"
 author: "Arunima Roy, Andrew Nalundasan, Jianan Hsu"
 date: "11/20/2020"
 output:
-  pdf_document: default
+  word_document: default
   html_document: default
+  pdf_document: default
 ---
 
 
 ```{r, include=FALSE}
-# Sets the working directory
-setwd("~/Documents/School/Grad School/5112 Stats for Business Analytics/data_translation_20201116")
-
 # Sourcing the code
-source('01_code/read_file_draft.R')
+source('01_code/final_code.R')
 
 library(stargazer)
 library(tinytex)
