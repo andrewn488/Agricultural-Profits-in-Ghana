@@ -10,6 +10,8 @@
 library(tidyverse)
 library(haven)
 library(dplyr)
+library(corrplot)
+library(Hmisc)
 
 #-------------------------------------------------------------------------------------------------------------------#
 # Read in data files                                                                                                #
@@ -235,6 +237,16 @@ wrangle_data_final_has_profit <-
 round_cor <- cor(wrangle_data_final) # Calculate correlation matrix
 round_cor <- round(round_cor, 2)
 
+
+#remove factor and drop all observation contains NA to create correlation matrix
+wrangle_data_final_has_profit.cor <- 
+  wrangle_data_final_has_profit %>%
+  select(-ez) %>%
+  drop_na() 
+#change df to correlation table and create correlation plot
+wrangle_data_final_has_profit.cor <- cor(wrangle_data_final_has_profit.cor)
+corrplot(wrangle_data_final_has_profit.cor, cl.lim=c(min(wrangle_data_final_has_profit.cor),max(wrangle_data_final_has_profit.cor)))
+
 #-------------------------------------------------------------------------------------------------------------------#
 # Analysis                                                                                                          #
 #-------------------------------------------------------------------------------------------------------------------#
@@ -330,3 +342,4 @@ const_var_4 <- plot(fitted(regression_4), resid(regression_4),
                     abline(h = 0, col = "blue"))
 
 const_var_4
+
