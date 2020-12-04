@@ -237,6 +237,7 @@ wrangle_data_final_has_profit <-
 round_cor <- cor(wrangle_data_final) # Calculate correlation matrix
 round_cor <- round(round_cor, 2)
 
+
 #remove factor and drop all observation contains NA to create correlation matrix
 wrangle_data_final_has_profit.cor <- 
   wrangle_data_final_has_profit %>%
