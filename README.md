@@ -1,18 +1,17 @@
-# data_translation_20201116
+# OMSBA-5112-DTC
 
-The data should go in this folder: 
-02_raw_data
+Collaboration with Arunima Roy, Jianan Hsu, and Andrew Nalundasan
 
-The .dta files used in this project were:
-sec0a.dta
-sec2a.dta
-sec8a1.dta
-agg1.dta
-agg2.dta
-agg4.dta
-agg7.dta
-agg9.dta
-cs2.dta
-cs3.dta
-cs4b.dta
+**Purpose:**
+The goal for this case study is to investigate how agricultural profits are determined in Ghana. 
+
+**Data:**
+Ghana Statistical Service: https://www.statsghana.gov.gh/gssdatadownloadspage.php
+
+**Analysis:**
+Ho: Educational attainment does not affect agricultural profit per area unit
+HA: Educational attainment does affect agricultural profit per area unit
+
+**Conclusion:** 
+Based on the analysis of our models, we fail to reject our null hypothesis due to insignificant levels of significance for the highest education explanatory variable. However, an interesting finding would be that if there is a primary education facility in a community, it was found to have a significant effect on agricultural profits. As we refined our models, the R^2 value continued to increase, indicating that predictability increases. In Regression 4, our R^2 value was 0.17 showing that 17% of the explanatory variables impact the dependent variable. 
 
